@@ -16,8 +16,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
 
     private var audioRecorder: AVAudioRecorder!
     private var stopwatchTimer: Timer?
-    private var recordingStartTime: Date?
-    private var totalElapsedTime: TimeInterval = 0
+    private var stopwatchStartDate: Date?
+    private var stopwatchElapsedTime: TimeInterval = 0
 
     // MARK: - Initialization
     override init() {
@@ -33,16 +33,16 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     }
 
     // MARK: - Recording Controls
-    func startRecording() {
+    func beginRecording() {
         if isPaused {
             // Resume recording
-            recordingStartTime = Date(timeIntervalSinceNow: -totalElapsedTime)
+            stopwatchStartDate = Date()
             audioRecorder.record()
             isPaused = false
         } else {
             // Start a new recording
-            recordingStartTime = Date()
-            totalElapsedTime = 0
+            stopwatchStartDate = Date()
+            stopwatchElapsedTime = 0
             prepareRecorder()
             audioRecorder.record()
         }
@@ -52,7 +52,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
 
     func stopRecording() {
         audioRecorder.pause()
-        totalElapsedTime += Date().timeIntervalSince(recordingStartTime!)
+        stopwatchElapsedTime += Date().timeIntervalSince(stopwatchStartDate!)
+        stopwatchStartDate = nil
         isPaused = true
         stopStopwatch()
     }
@@ -63,10 +64,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         deleteRecording() // Delete the recording file
         hasRecording = false
         isPaused = false
-        totalElapsedTime = 0
-        prepareRecorder()
     }
-
+    
     // MARK: - File Management
     private func prepareRecorder() {
         let settings = [
@@ -117,14 +116,16 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     private func resetStopwatch() {
         stopwatchTimer?.invalidate()
         stopwatchText = "00:00:00"
+        stopwatchElapsedTime = 0
+        stopwatchStartDate = nil
     }
 
     private func updateStopwatch() {
-        guard let startTime = recordingStartTime else { return }
-        var elapsedTime = Date().timeIntervalSince(startTime) + totalElapsedTime
-        let minutes = Int(elapsedTime / 60)
-        let seconds = Int(elapsedTime) % 60
-        let milliseconds = Int((elapsedTime.truncatingRemainder(dividingBy: 1)) * 100)
+        let elapsedTime = stopwatchStartDate != nil ? Date().timeIntervalSince(stopwatchStartDate!) : 0
+        let totalElapsedTime = stopwatchElapsedTime + elapsedTime
+        let minutes = Int(totalElapsedTime / 60)
+        let seconds = Int(totalElapsedTime) % 60
+        let milliseconds = Int((totalElapsedTime.truncatingRemainder(dividingBy: 1)) * 100)
         stopwatchText = String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
     }
 }

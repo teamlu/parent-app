@@ -19,7 +19,7 @@ struct ContentView: View {
             Button(action: {
                 self.isRecording.toggle()
                 if self.isRecording {
-                    audioRecorder.startRecording()
+                    audioRecorder.beginRecording() // Updated method name
                 } else {
                     audioRecorder.stopRecording()
                 }
@@ -41,7 +41,7 @@ struct ContentView: View {
                 .disabled(!audioRecorder.hasRecording)
 
                 Button(action: {
-                    audioRecorder.startOver()
+                    audioRecorder.startOver() // Ensure this method exists in AudioRecorder
                     isRecording = false
                 }) {
                     Text("Start again")
@@ -49,11 +49,5 @@ struct ContentView: View {
                 .disabled(!audioRecorder.hasRecording)
             }
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView(audioRecorder: AudioRecorder())
     }
 }

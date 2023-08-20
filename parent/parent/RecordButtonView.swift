@@ -61,7 +61,7 @@ struct RecordButtonView: UIViewRepresentable {
             if parent.isRecording {
                 audioRecorder.stopRecording() // Stop and reset the current recording
             } else {
-                audioRecorder.startRecording() // Start a new recording
+                audioRecorder.beginRecording() // Start a new recording
             }
             parent.isRecording.toggle()
         }
