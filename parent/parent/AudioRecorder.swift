@@ -7,18 +7,19 @@
 import Foundation
 import AVFoundation
 
-class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
-    
-    var audioRecorder: AVAudioRecorder!
-    var audioPlayer: AVAudioPlayer!
-    
+class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
+
+    // MARK: - Properties
     @Published var stopwatchText: String = "00:00:00"
-    @Published var isPlaying: Bool = false
     @Published var hasRecording: Bool = false
-    
+    @Published var isPaused: Bool = false
+
+    private var audioRecorder: AVAudioRecorder!
     private var stopwatchTimer: Timer?
     private var recordingStartTime: Date?
-    
+    private var totalElapsedTime: TimeInterval = 0
+
+    // MARK: - Initialization
     override init() {
         super.init()
         let recordingSession = AVAudioSession.sharedInstance()
@@ -30,67 +31,43 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudi
         }
         prepareRecorder()
     }
-    
+
+    // MARK: - Recording Controls
     func startRecording() {
-        audioRecorder.record()
-        recordingStartTime = Date()
+        if isPaused {
+            // Resume recording
+            recordingStartTime = Date(timeIntervalSinceNow: -totalElapsedTime)
+            audioRecorder.record()
+            isPaused = false
+        } else {
+            // Start a new recording
+            recordingStartTime = Date()
+            totalElapsedTime = 0
+            prepareRecorder()
+            audioRecorder.record()
+        }
         startStopwatch()
-        hasRecording = false
+        hasRecording = true
     }
 
     func stopRecording() {
-        audioRecorder.stop()
-        stopStopwatch()
-        hasRecording = true
-    }
-    
-    func pauseRecording() {
         audioRecorder.pause()
-        stopStopwatch() // Use the same function for stopping the stopwatch
+        totalElapsedTime += Date().timeIntervalSince(recordingStartTime!)
+        isPaused = true
+        stopStopwatch()
     }
 
-    func deleteRecording() {
-        stopRecording()
+    func startOver() {
+        audioRecorder.stop()
         resetStopwatch()
-        do {
-            try FileManager.default.removeItem(at: getDocumentsDirectory().appendingPathComponent("recording.m4a"))
-        } catch {
-            print("Failed to delete recording")
-        }
+        deleteRecording() // Delete the recording file
         hasRecording = false
-        audioPlayer = nil
-    }
-    
-    func rewind15Seconds() {
-        let newPosition = max(audioPlayer.currentTime - 15, 0)
-        audioPlayer.currentTime = newPosition
+        isPaused = false
+        totalElapsedTime = 0
+        prepareRecorder()
     }
 
-    func forward15Seconds() {
-        let newPosition = min(audioPlayer.currentTime + 15, audioPlayer.duration)
-        audioPlayer.currentTime = newPosition
-    }
-
-    func togglePlayback() {
-        if audioPlayer == nil {
-            do {
-                try audioPlayer = AVAudioPlayer(contentsOf: getDocumentsDirectory().appendingPathComponent("recording.m4a"))
-                audioPlayer.delegate = self
-                audioPlayer.prepareToPlay()
-            } catch {
-                print("Playback failed")
-            }
-        }
-
-        if isPlaying {
-            audioPlayer.pause()
-        } else {
-            audioPlayer.play()
-        }
-
-        isPlaying.toggle()
-    }
-    
+    // MARK: - File Management
     private func prepareRecorder() {
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -108,14 +85,26 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudi
             print("Failed to set up recorder")
         }
     }
-    
+
+    private func deleteRecording() {
+        let url = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+        if FileManager.default.fileExists(atPath: url.path) {
+            do {
+                try FileManager.default.removeItem(at: url)
+                hasRecording = false
+            } catch {
+                print("Failed to delete previous recording")
+            }
+        }
+    }
+
     private func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
-    
+
+    // MARK: - Stopwatch Controls
     private func startStopwatch() {
-        stopwatchTimer?.invalidate()
         stopwatchTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
             self.updateStopwatch()
         }
@@ -132,20 +121,10 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudi
 
     private func updateStopwatch() {
         guard let startTime = recordingStartTime else { return }
-        let elapsedTime = Date().timeIntervalSince(startTime)
+        var elapsedTime = Date().timeIntervalSince(startTime) + totalElapsedTime
         let minutes = Int(elapsedTime / 60)
         let seconds = Int(elapsedTime) % 60
         let milliseconds = Int((elapsedTime.truncatingRemainder(dividingBy: 1)) * 100)
         stopwatchText = String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
-    }
-    
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        if !flag {
-            print("Recording failed")
-        }
-    }
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        isPlaying = false
     }
 }
