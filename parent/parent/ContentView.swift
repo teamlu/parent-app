@@ -9,129 +9,101 @@ import AVFoundation
 
 struct ContentView: View {
     @ObservedObject var audioRecorder: AudioRecorder
-    @State private var milliseconds: Int = 0
-    @State private var timer: Timer? = nil
-    @State private var audioPlayer: AVAudioPlayer?
+
+    @State private var isRecording: Bool = false
 
     var body: some View {
         VStack {
-            if audioRecorder.recordingFinished {
-                ProcessOrDeleteControls(audioRecorder: audioRecorder, milliseconds: $milliseconds, timer: $timer)
+            Text(audioRecorder.stopwatchText)
+                .font(.largeTitle)
 
-                PlaybackControls(audioRecorder: audioRecorder, audioPlayer: $audioPlayer)
+            RecordButtonView(isRecording: $isRecording, audioRecorder: audioRecorder)
+
+            // Other UI elements can be placed here
+
+            // Audio processing and deletion controls
+            HStack(spacing: 20) {
+                Button(action: {
+                    // Placeholder for processing the audio logic here
+                }) {
+                    Text("What can I do?")
+                }
+                .disabled(!audioRecorder.hasRecording)
+
+                Button(action: {
+                    audioRecorder.deleteRecording()
+                    isRecording = false
+                }) {
+                    Text("Start again")
+                }
+                .disabled(!audioRecorder.hasRecording)
             }
 
-            Text("\(String(format: "%02d", milliseconds / 60000)):\(String(format: "%02d", (milliseconds / 1000) % 60)):\(String(format: "%02d", (milliseconds / 100) % 10))")
-                .font(.title)
-
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-
-            Text("Kinmo")
-
+            // Playback controls (rewind, play/pause, forward)
             HStack {
                 Button(action: {
+                    audioRecorder.rewind15Seconds()
+                }) {
+                    Image(systemName: "backward.fill")
+                }
+
+                Button(action: {
+                    audioRecorder.togglePlayback()
+                }) {
+                    Image(systemName: audioRecorder.isPlaying ? "pause.fill" : "play.fill") // Use system image or your custom image
+                }
+
+                Button(action: {
+                    audioRecorder.forward15Seconds()
+                }) {
+                    Image(systemName: "forward.fill")
+                }
+            }
+            .disabled(!audioRecorder.hasRecording || isRecording)
+        }
+    }
+
+    struct RecordButtonView: UIViewRepresentable {
+        @Binding var isRecording: Bool
+        var audioRecorder: AudioRecorder
+
+        func makeUIView(context: Context) -> RecordButton {
+            let button = RecordButton()
+            button.addTarget(context.coordinator, action: #selector(Coordinator.handleRecording(_:)), for: .touchUpInside)
+            return button
+        }
+
+        func updateUIView(_ uiView: RecordButton, context: Context) {
+            uiView.isRecording = isRecording
+        }
+
+        func makeCoordinator() -> Coordinator {
+            Coordinator(self, audioRecorder: audioRecorder)
+        }
+
+        class Coordinator: NSObject {
+            var parent: RecordButtonView
+            var audioRecorder: AudioRecorder
+            
+            init(_ parent: RecordButtonView, audioRecorder: AudioRecorder) {
+                self.parent = parent
+                self.audioRecorder = audioRecorder
+            }
+
+            @objc func handleRecording(_ sender: RecordButton) {
+                parent.isRecording.toggle()
+                if parent.isRecording {
                     audioRecorder.startRecording()
-                    startStopwatch()
-                }) {
-                    Text("Start Recording")
-                }
-                .disabled(audioRecorder.recording && !audioRecorder.recordingPaused)
-
-                Button(action: {
-                    audioRecorder.pauseRecording()
-                    pauseStopwatch()
-                }) {
-                    Text("Pause Recording")
-                }
-                .disabled(!audioRecorder.recording || audioRecorder.recordingPaused)
-
-                Button(action: {
+                } else {
                     audioRecorder.stopRecording()
-                    stopStopwatch()
-                }) {
-                    Text("Finish Recording")
                 }
-                .disabled(!audioRecorder.recording && !audioRecorder.recordingPaused)
-            }
-            .padding()
-        }
-    }
-
-    func startStopwatch() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
-            milliseconds += 1
-        }
-    }
-
-    func pauseStopwatch() {
-        timer?.invalidate()
-    }
-
-    func stopStopwatch() {
-        timer?.invalidate()
-        timer = nil
-    }
-}
-
-struct ProcessOrDeleteControls: View {
-    @ObservedObject var audioRecorder: AudioRecorder
-    @Binding var milliseconds: Int
-    @Binding var timer: Timer?
-
-    var body: some View {
-        HStack {
-            Button("Process the audio") {
-                // Processing code here
-            }
-
-            Button("Delete the audio") {
-                audioRecorder.resetRecording()
-                milliseconds = 0
-                timer?.invalidate()
-                timer = nil
             }
         }
     }
 }
 
-struct PlaybackControls: View {
-    @ObservedObject var audioRecorder: AudioRecorder
-    @Binding var audioPlayer: AVAudioPlayer?
-
-    var body: some View {
-        HStack {
-            Button(action: {
-                playAudio(rewind: true)
-            }) {
-                Image(systemName: "backward.end.fill")
-            }
-
-            Button(action: {
-                playAudio()
-            }) {
-                Image(systemName: "play.fill")
-            }
-
-            Button(action: {
-                playAudio(forward: true)
-            }) {
-                Image(systemName: "forward.end.fill")
-            }
-        }
-    }
-
-    private func playAudio(rewind: Bool = false, forward: Bool = false) {
-        guard let data = audioRecorder.recordedData else { return }
-
-        do {
-            audioPlayer = try AVAudioPlayer(data: data)
-            if rewind { audioPlayer?.currentTime -= 15 }
-            if forward { audioPlayer?.currentTime += 15 }
-            audioPlayer?.play()
-        } catch {
-            print("Audio playback failed.")
-        }
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(audioRecorder: AudioRecorder())
     }
 }

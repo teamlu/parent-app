@@ -1,0 +1,6 @@
+framework module Pods_parent_parentUITests {
+  umbrella header "Pods-parent-parentUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,16 @@
+PODS:
+  - PRTween (0.1.0)
+
+DEPENDENCIES:
+  - PRTween
+
+SPEC REPOS:
+  trunk:
+    - PRTween
+
+SPEC CHECKSUMS:
+  PRTween: 6c58c7e32ebcf31e33e6a6e6bc727ebef3b668ef
+
+PODFILE CHECKSUM: 0692075d15ad9b6463e73e6b743128c30ba3eebb
+
+COCOAPODS: 1.12.1
