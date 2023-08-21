@@ -13,6 +13,7 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     @Published var stopwatchText: String = "00:00:00"
     @Published var hasRecording: Bool = false
     @Published var isPaused: Bool = false
+    @Published var recordings: [URL] = []
 
     private var audioRecorder: AVAudioRecorder!
     private var stopwatchTimer: Timer?
@@ -22,32 +23,49 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     // MARK: - Initialization
     override init() {
         super.init()
-        let recordingSession = AVAudioSession.sharedInstance()
+        prepareRecordingSession()
+    }
+
+    private func prepareRecordingSession() {
         do {
-            try recordingSession.setCategory(.record, mode: .default)
-            try recordingSession.setActive(true)
+            try AVAudioSession.sharedInstance().setCategory(.record, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("Failed to set up recording session")
         }
-        prepareRecorder()
+    }
+
+    private func preparePlaybackSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        } catch {
+            print("Failed to set up playback session")
+        }
     }
 
     // MARK: - Recording Controls
     func beginRecording() {
+        prepareRecordingSession()
         if isPaused {
-            // Resume recording
             stopwatchStartDate = Date()
             audioRecorder.record()
             isPaused = false
         } else {
-            // Start a new recording
+            let uniqueName = generateUniqueFileName()
+            prepareRecorder(uniqueName: uniqueName)
+            audioRecorder.record()
+            recordings.append(getDocumentsDirectory().appendingPathComponent(uniqueName))
             stopwatchStartDate = Date()
             stopwatchElapsedTime = 0
-            prepareRecorder()
-            audioRecorder.record()
         }
         startStopwatch()
         hasRecording = true
+    }
+
+    private func generateUniqueFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        return "recording_\(dateFormatter.string(from: Date())).m4a"
     }
 
     func stopRecording() {
@@ -57,36 +75,44 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         isPaused = true
         stopStopwatch()
     }
-
+    
+    func finalizeRecording() {
+        audioRecorder.stop()
+        resetStopwatch()
+    }
+    
     func startOver() {
         audioRecorder.stop()
         resetStopwatch()
-        deleteRecording() // Delete the recording file
+        // Use the URL of the last recording to delete it
+        if let lastRecording = recordings.last {
+            deleteRecording(url: lastRecording)
+            recordings.removeLast() // Remove the URL from the recordings array
+        }
         hasRecording = false
         isPaused = false
     }
-    
-    // MARK: - File Management
-    private func prepareRecorder() {
-        let settings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
 
+    // MARK: - File Management
+    private func prepareRecorder(uniqueName: String) {
         do {
-            let url = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+            let url = getDocumentsDirectory().appendingPathComponent(uniqueName)
+            let settings: [String: Any] = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey: 12000,
+                AVNumberOfChannelsKey: 1,
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            ]
+
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
             audioRecorder.delegate = self
             audioRecorder.prepareToRecord()
         } catch {
-            print("Failed to set up recorder")
+            print("Failed to set up audio recorder: \(error)")
         }
     }
 
-    private func deleteRecording() {
-        let url = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+    func deleteRecording(url: URL) {
         if FileManager.default.fileExists(atPath: url.path) {
             do {
                 try FileManager.default.removeItem(at: url)
@@ -97,7 +123,7 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         }
     }
 
-    private func getDocumentsDirectory() -> URL {
+    func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
