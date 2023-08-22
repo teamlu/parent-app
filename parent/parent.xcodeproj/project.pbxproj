@@ -131,7 +131,7 @@
 		E6FAE8452A91B9470016143E = {
 			isa = PBXGroup;
 			children = (
-				E6FAE8502A91B9470016143E /* parent */,
+				E6FAE8502A91B9470016143E /* frontend */,
 				E6FAE8612A91B9490016143E /* parentTests */,
 				E6FAE86B2A91B9490016143E /* parentUITests */,
 				E6FAE84F2A91B9470016143E /* Products */,
@@ -150,7 +150,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E6FAE8502A91B9470016143E /* parent */ = {
+		E6FAE8502A91B9470016143E /* frontend */ = {
 			isa = PBXGroup;
 			children = (
 				E6FAE8512A91B9470016143E /* parentApp.swift */,
@@ -162,7 +162,7 @@
 				E6FAE8802A91FE070016143E /* RecordButtonView.swift */,
 				E60331282A92D3F600B77279 /* RecordingsListView.swift */,
 			);
-			path = parent;
+			path = frontend;
 			sourceTree = "<group>";
 		};
 		E6FAE8572A91B9490016143E /* Preview Content */ = {
@@ -591,7 +591,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"parent/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"frontend/Preview Content\"";
 				DEVELOPMENT_TEAM = N5KU46C5G8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -609,7 +609,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = kinship.parent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "/Users/timlu/repos/parent-app/parent/parent/ParentApp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "/Users/timlu/repos/parent-app/parent/frontend/ParentApp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -623,7 +623,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"parent/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"frontend/Preview Content\"";
 				DEVELOPMENT_TEAM = N5KU46C5G8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -641,7 +641,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = kinship.parent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "/Users/timlu/repos/parent-app/parent/parent/ParentApp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "/Users/timlu/repos/parent-app/parent/frontend/ParentApp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
