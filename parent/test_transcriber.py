@@ -1,15 +1,16 @@
 """
 File: transcriber.py
-Description: This file contains the following methods:
+Description: This file tests the following methods:
              1. download_file: Downloads a file from a given URL and saves it locally.
              2. download_whisper: Downloads the Whisper model for transcription.
              3. get_transcribed_chat: Transcribes a chat from a given URL using the Whisper model.
              4. main: Main entrypoint that triggers the transcription function.
 
-Steps: You can invoke the function from the command line with:
+Steps: You can invoke either function from the command line with - be sure to uncomment `main()`:
        > modal run transcriber.py --file-url https://parent-audio.s3.us-east-2.amazonaws.com/El+Terrible+Juan+Cafe%CC%81.m4a
+       
        If you're satisfied, deploy it with:
-       > modal deploy transcriber.py
+       > modal deploy backend.py
 """
 
 import modal
@@ -42,7 +43,7 @@ def get_transcribed_chat(file_url):
     local_path = '/whisper/episode.m4a'
     download_file(file_url, local_path)
 
-    print("Starting Podcast Transcription Function")
+    print("Starting Chat Transcription Function")
     print("File Path:", file_url)
 
     # Load the Whisper model
@@ -53,22 +54,14 @@ def get_transcribed_chat(file_url):
     model = whisper.load_model('medium', device='cuda', download_root='/whisper/')
 
     # Perform the transcription
-    print("Starting podcast transcription")
+    print("Starting chat transcription")
     result = model.transcribe(local_path)
 
     # Return the transcribed text
-    print("Podcast transcription completed, returning results...")
+    print("Chat transcription completed, returning results...")
     return {'text': result['text']}
 
 @stub.local_entrypoint()
 def main(file_url):
     output = get_transcribed_chat.call(file_url=file_url)
     print(output['text'])
- 
-# SCRATCH   
-# If I want to call the function from a different py file:
-#
-# import modal
-# f = modal.Function.lookup("parent-app", "get_transcribed_chat")
-# output = f.call(file_url)
-#

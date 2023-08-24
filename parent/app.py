@@ -2,41 +2,52 @@
 File: app.py
 Description: FastAPI server to handle podcast transcription requests.
              This file sets up the FastAPI application and defines the endpoint
-             for transcribing chats with mock response.
+             for transcribing chats. The transcription is performed by invoking
+             a function from a Modal parent app.
 
 Steps to run and test the server:
 - Run the server using the command (remember, navigate to the directory containing the `parent` folder)
         uvicorn parent.app:app --reload
-- Test the endpoint by navigating to:
-    http://127.0.0.1:8000/transcribe?rss_url=test_rss&local_path=test_path
-    or use the Swagger UI at:
-    http://127.0.0.1:8000/docs
+- Test the endpoint by navigating to the Swagger UI at http://127.0.0.1:8000/docs
+    > url https://parent-audio.s3.us-east-2.amazonaws.com/El+Terrible+Juan+Cafe%CC%81.m4a
 """
 
 from fastapi import FastAPI
+import modal
 
 app = FastAPI()
 
-@app.get("/transcribe")
-def transcribe_chat(file_url: str, local_path: str):
+@app.get("/main")
+def transcribe_and_dadvise(url: str):
     """
-    Endpoint to transcribe chat given an file URL and local path.
+    Endpoint to transcribe an audio file from a given URL and subsequently generate 
+    parenting advice based on the transcription. This function accomplishes both tasks 
+    by invoking two different functions deployed on Modal.
 
     Parameters:
-    file_url (str): URL of the chat.
-    local_path (str): Local path to save the transcription.
+    url (str): URL of the audio file to be transcribed.
 
     Returns:
-    dict: A mock response containing transcribed text, RSS URL, and local path.
+    dict: A dictionary containing the advice text generated based on the transcription.
+    
+    Workflow:
+    1. Transcribes the audio file using the 'get_transcribed_chat' function from Modal.
+    2. Generates parenting advice based on the transcription using the 'get_parent_advice' function from Modal.
     """
 
-    # This is a mock response that will be returned when this endpoint is called.
-    # In the actual implementation, this would be replaced with code that performs
-    # the transcription and returns the result.
-    mock_response = {
-        "text": "This is a transcribed text from the chat.",
-        "rss_url": file_url,
-        "local_path": local_path
-    }
+    # Invoke the 'get_transcribed_chat' function from Modal to perform transcription
+    f_transcribe = modal.Function.lookup("parent-app", "get_transcribed_chat")
+    transcription = f_transcribe.call(file_url=url)['text']
 
-    return mock_response
+    # Invoke the 'get_parent_advice' function from Modal to generate advice
+    f_advise = modal.Function.lookup("parent-app", "get_parent_advice")
+    advice = f_advise.call(chat_transcript=transcription)
+
+    return {"advice": advice}
+
+# SCRATCH
+# response = {
+#     "text": transcription,
+#     "file_url": file_url,
+#     "local_path": local_path
+# }
