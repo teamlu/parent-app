@@ -1,5 +1,5 @@
 """
-File: backeend.py
+File: backend.py
 Description: This file contains the following methods:
              1. download_file: Downloads a file from a given URL and saves it locally.
              2. download_whisper: Downloads the Whisper model for transcription.
@@ -9,7 +9,7 @@ Description: This file contains the following methods:
 
 Steps: This file deploys the backend functions to Modal after 
        successful testing on test_transcriber.py and test_dadvisor.py
-       > modal deploy transcriber.py
+       > modal deploy backend.py
 """
 
 import modal
@@ -35,17 +35,33 @@ stub = modal.Stub("parent-app")
 parent_image = modal.Image.debian_slim().pip_install(
     "https://github.com/openai/whisper/archive/9f70a352f9f8630ab3aa0d06af5cb9532bd8c21d.tar.gz",
     "openai",
+    "boto3",
     "tiktoken").apt_install("ffmpeg").run_function(download_whisper)
 
+@stub.function(secret=modal.Secret.from_name("my-aws-secret"))
+def read_s3_file(bucket, key):
+    # Don't need yet, since I'm downlodaing the file from a public URL
+    # on S3. Getting S3 objects will be useful later if I choose not 
+    # to download via URL.
+    import boto3
+
+    s3 = boto3.client("s3")
+    response = s3.get_object(Bucket=bucket, Key=key)
+    contents = response["Body"].read()
+    return contents.decode("utf-8")
+
 @stub.function(image=parent_image, gpu="any", timeout=600)
-def get_transcribed_chat(file_url):
+def get_transcribed_chat(file_url=None):
+
+    if file_url is None:
+        raise ValueError("File_url must be provided.")
+
     local_path = '/whisper/episode.m4a'
     download_file(file_url, local_path)
-
-    print("Starting Chat Transcription Function")
-    print("File Path:", file_url)
-
+    print(f"Downloaded file from URL: {file_url}")
+    
     # Load the Whisper model
+    print("Starting Chat Transcription Function")
     import whisper
 
     # Load model from saved location
