@@ -98,12 +98,17 @@ struct RecordingsListView: View {
                     NavigationLink(destination: RecordingDetails()) {
                         Text(recordingURL.lastPathComponent)
                     }
-                    Spacer()
-                    Button("Play") {
-                        playRecording(url: recordingURL)
+                    .swipeActions(edge: .leading) {
+                        Button("Play") {
+                            playRecording(url: recordingURL)
+                        }
+                        .tint(.blue)
                     }
-                    Button("Delete") {
-                        deleteRecording(url: recordingURL)
+                    .swipeActions(edge: .trailing) {
+                        Button("Delete") {
+                            deleteRecording(url: recordingURL)
+                        }
+                        .tint(.red)
                     }
                 }
             }
