@@ -104,8 +104,28 @@ struct ContentView: View {
             if shouldShow {
                 List {
                     ForEach(audioRecorder.recordings, id: \.self) { recordingURL in
+                        let index = audioRecorder.recordings.firstIndex(of: recordingURL) ?? 0
+                        
                         NavigationLink(destination: RecordingDetails()) {
-                            Text(recordingURL.lastPathComponent)
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text("Recording \(index + 1)")
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Text(audioRecorder.getDuration(for: recordingURL)) // Assume you have a function to get duration
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(.black)
+                                
+                                HStack {
+                                    Text(audioRecorder.getDate(for: recordingURL)) // Assume you have a function to get date
+                                    Spacer()
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(audioRecorder.getStatus(for: recordingURL) == .Processing ? .orange : .green) // Assume you have a function to get status
+                                    Text(audioRecorder.getStatus(for: recordingURL).rawValue) // Assume you have a function to get status
+                                }
+                                .foregroundColor(.gray)
+                            }
                         }
                         .swipeActions(edge: .leading) {
                             Button("Play") {

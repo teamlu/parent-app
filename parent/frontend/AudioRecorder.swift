@@ -168,4 +168,26 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         let milliseconds = Int((totalElapsedTime.truncatingRemainder(dividingBy: 1)) * 100)
         stopwatchText = String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
     }
+    
+    // MARK: - Additional Utility Functions
+    func getDuration(for url: URL) -> String {
+        // TODO: Implement the logic to get duration of the audio file
+        return "00:00"
+    }
+
+    func getDate(for url: URL) -> String {
+        // TODO: Implement the logic to get date of the audio file
+        return "yyyy/MM/dd"
+    }
+
+    enum RecordingStatus: String {
+        case Processing = "Processing"
+        case Done = "Done"
+        // Add more status if needed
+    }
+
+    func getStatus(for url: URL) -> RecordingStatus {
+        // TODO: Implement the logic to get status of the audio file
+        return .Done
+    }
 }
