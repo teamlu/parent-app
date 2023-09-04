@@ -76,9 +76,14 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         stopStopwatch()
     }
     
+    func updateRecordingsList() {
+        fetchRecordings()
+    }
+    
     func finalizeRecording() {
         audioRecorder.stop()
         resetStopwatch()
+        updateRecordingsList()  // Update the recordings list
     }
     
     func startOver() {
@@ -116,16 +121,33 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         if FileManager.default.fileExists(atPath: url.path) {
             do {
                 try FileManager.default.removeItem(at: url)
-                hasRecording = false
+                if let index = recordings.firstIndex(of: url) {
+                    recordings.remove(at: index)
+                }
+                updateRecordingsList()  // Update the recordings list
             } catch {
-                print("Failed to delete previous recording")
+                print("Failed to delete recording: \(error.localizedDescription)")
             }
+        } else {
+            print("File does not exist at path: \(url.path)")
         }
     }
 
     func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
+    }
+    
+    // Add this method to fetch and populate the 'recordings' array
+    func fetchRecordings() {
+        do {
+            let documentsPath = getDocumentsDirectory().path
+            let directoryContents = try FileManager.default.contentsOfDirectory(at: getDocumentsDirectory(), includingPropertiesForKeys: nil, options: [])
+
+            recordings = directoryContents.filter { $0.pathExtension == "m4a" }
+        } catch {
+            print("Could not fetch recordings: \(error)")
+        }
     }
 
     // MARK: - Stopwatch Controls
