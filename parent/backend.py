@@ -40,9 +40,10 @@ parent_image = modal.Image.debian_slim().pip_install(
 
 @stub.function(secret=modal.Secret.from_name("my-aws-secret"))
 def read_s3_file(bucket, key):
-    # Don't need yet, since I'm downlodaing the file from a public URL
-    # on S3. Getting S3 objects will be useful later if I choose not 
-    # to download via URL.
+    # Don't need yet, as I'm gewtting the file from a public S3 URL
+    # Code the app so it can access the AWS S3 bucket via the SDK
+    # with a Cognito Identity pool.
+    # https://github.com/robkerr/AWS_S3_iOS_Tutorial
     import boto3
 
     s3 = boto3.client("s3")
