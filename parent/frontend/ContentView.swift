@@ -8,11 +8,11 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    @ObservedObject var audioRecorder: AudioRecorder  // Observable audio recorder object
-    @State var recordingState: RecordingState = .idle // Flag for the recording state
-    @State var showSavedRecordings = false            // Flag for showing the list of saved recordings
-    @State private var showSplash = true              // Flag for splash screen
-    @State private var showParentAppText = false      // Flag for Parent App text
+    @ObservedObject var audioRecorder: AudioRecorder
+    @State var recordingState: RecordingState = .idle
+    @State var showSavedRecordings = false
+    @State private var showSplash = true
+    @State private var showParentAppText = false
     
     enum RecordingState {
         case idle
@@ -23,7 +23,6 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Main Content
                 VStack {
                     if showParentAppText {
                         Text("Parent App")
@@ -106,7 +105,7 @@ struct ContentView: View {
                     ForEach(audioRecorder.recordings, id: \.self) { recordingURL in
                         let index = audioRecorder.recordings.firstIndex(of: recordingURL) ?? 0
                         
-                        NavigationLink(destination: RecordingDetails()) {
+                        NavigationLink(destination: DadviceView(currentIndex: index, recordings: audioRecorder.recordings)) {
                             VStack(alignment: .leading) {
                                 HStack {
                                     Text("Recording \(index + 1)")
@@ -186,11 +185,92 @@ struct ContentView: View {
         }
     }
     
-    struct RecordingDetails: View {
+    struct DadviceView: View {
+        @State var currentIndex: Int // index to control the current display in the carousel
+        var recordings: [URL] // Your array of recordings
+
         var body: some View {
-            Text("Recording Details")
-                .navigationBarTitle("Details", displayMode: .inline)
-                .navigationBarBackButtonHidden(false)
+            // Check if the currentIndex is within the valid range of the array
+            if recordings.indices.contains(currentIndex) {
+                NavigationView {
+                    VStack {
+                        Text("Dadvice")
+                            .font(.title)
+                            .padding()
+                        
+                        // Editable Recording Name
+                        // Replace with your method to get recording name
+                        TextField("Editable Recording Name", text: .constant("Recording \(currentIndex + 1)"))
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+
+                        HStack {
+                            // Left Carousel Arrow
+                            Button(action: {
+                                withAnimation {
+                                    currentIndex = max(currentIndex - 1, 0)
+                                }
+                            }) {
+                                Image(systemName: "arrow.left.circle.fill")
+                                    .font(.largeTitle)
+                                    .opacity(currentIndex == 0 ? 0.4 : 1)
+                            }
+                            .disabled(currentIndex == 0)
+
+                            VStack {
+                                // Blue Rectangle
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color.blue)
+                                    .frame(height: 300)
+                                    .overlay(
+                                        Text("Your API-generated text here")
+                                            .foregroundColor(.white)
+                                            .padding()
+                                    )
+                            }
+
+                            // Right Carousel Arrow
+                            Button(action: {
+                                withAnimation {
+                                    currentIndex = min(currentIndex + 1, recordings.count - 1)
+                                }
+                            }) {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.largeTitle)
+                                    .opacity(currentIndex == recordings.count - 1 ? 0.4 : 1)
+                            }
+                            .disabled(currentIndex == recordings.count - 1)
+                        }
+
+                        Spacer()
+
+                        // Share Icon (Bottom Right)
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                // Implement your sharing logic here
+                            }) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .padding()
+                                    .background(Circle().fill(Color.gray))
+                            }
+                        }
+                    }
+                    .navigationBarTitle("", displayMode: .inline)
+                }
+            }
         }
+    }
+
+    struct Recording: Identifiable {
+        var id: String // Some unique id, could be the file URL
+        var name: String // Recording name
+        // Other properties such as Date, Status, etc.
+    }
+    
+    class RecordingsManager: ObservableObject {
+        @Published var recordings: [Recording] = [] // Populate this array as needed
     }
 }
