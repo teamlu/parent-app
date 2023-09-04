@@ -23,7 +23,7 @@ struct ContentView: View {
                             .padding()
                     }
                     
-                    RecordingsListView(audioRecorder: audioRecorder, shouldShow: $viewModel.showSavedRecordings)
+                    RecordingsListView(viewModel: RecordingsListViewModel(audioRecorder: audioRecorder), shouldShow: $viewModel.showSavedRecordings)
                         .background(viewModel.recordingState == .recording ? Color.black : Color(UIColor.secondarySystemBackground))
                         .disabled(viewModel.recordingState == .recording)
                         .opacity(viewModel.recordingState == .recording ? 0.4 : 1.0)

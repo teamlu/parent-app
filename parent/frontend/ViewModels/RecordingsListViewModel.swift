@@ -6,6 +6,7 @@
 //
 import Foundation
 import AVFoundation
+import Combine
 
 class RecordingsListViewModel: ObservableObject {
     @Published var audioRecorder: AudioRecorder
@@ -15,9 +16,8 @@ class RecordingsListViewModel: ObservableObject {
         self.audioRecorder = audioRecorder
     }
     
+    // Play the recording at a given URL
     func playRecording(url: URL) {
-        print("Attempting to play file at URL: \(url.path)")
-        
         if FileManager.default.fileExists(atPath: url.path) {
             do {
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -26,9 +26,6 @@ class RecordingsListViewModel: ObservableObject {
                 audioPlayer = try AVAudioPlayer(contentsOf: url)
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
-                
-                print("Playing \(url.path)") // Debugging
-                
             } catch {
                 print("Couldn't load the audio file: \(error.localizedDescription)")
             }
@@ -37,6 +34,7 @@ class RecordingsListViewModel: ObservableObject {
         }
     }
     
+    // Delete the recording at a given URL
     func deleteRecording(url: URL) {
         if audioPlayer?.isPlaying == true {
             audioPlayer?.stop()
