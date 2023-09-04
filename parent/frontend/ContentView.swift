@@ -33,6 +33,9 @@ struct ContentView: View {
                     }
                     
                     RecordingsListView(audioRecorder: audioRecorder, shouldShow: $showSavedRecordings)
+                        .background(recordingState == .recording ? Color.black : Color(UIColor.secondarySystemBackground))
+                        .disabled(recordingState == .recording)
+                        .opacity(recordingState == .recording ? 0.4 : 1.0)
                     
                     if !showSplash {
                         HStack {
