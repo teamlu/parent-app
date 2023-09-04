@@ -8,10 +8,10 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    @ObservedObject var audioRecorder: AudioRecorder
-    @State var isRecording = false
-    @State var canSave = false
-    @State var shouldSaveRecording = false
+    @ObservedObject var audioRecorder: AudioRecorder  // Observable audio recorder object
+    @State var isRecording = false                    // Indicates if currently recording
+    @State var canSave = false                        // Indicates if the recording can be saved
+    @State var shouldSaveRecording = false            // Flag for showing the list of saved recordings
     
     var body: some View {
         NavigationView {
@@ -41,7 +41,7 @@ struct ContentView: View {
                 .padding()
                 
                 Button("Save") {
-                    shouldSaveRecording = true  // Show the recording list
+                    shouldSaveRecording = true  // Show the recording list after the first recording
                     audioRecorder.finalizeRecording()
                     audioRecorder.updateRecordingsList()  // Update the recordings list
                     canSave = false

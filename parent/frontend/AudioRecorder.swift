@@ -4,28 +4,35 @@
 //
 //  Created by Tim Lu on 8/19/23.
 //
+// NOTE: CONSOLIDATING FILE MANAGEMENT METHODS
+//       Consider moving the file management functions (prepareRecorder, deleteRecording,
+//       getDocumentsDirectory, fetchRecordings) to a separate helper class to keep your
+//       AudioRecorder class focused on audio recording logic. This is more of an architectural
+//       choice and depends on how complex your project is.
+
 import Foundation
 import AVFoundation
 
 class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
-
+    
     // MARK: - Properties
-    @Published var stopwatchText: String = "00:00:00"
-    @Published var hasRecording: Bool = false
-    @Published var isPaused: Bool = false
-    @Published var recordings: [URL] = []
-
-    private var audioRecorder: AVAudioRecorder!
-    private var stopwatchTimer: Timer?
-    private var stopwatchStartDate: Date?
-    private var stopwatchElapsedTime: TimeInterval = 0
+    @Published var stopwatchText: String = "00:00:00"  // Stopwatch time in "HH:MM:SS" format
+    @Published var hasRecording: Bool = false            // Indicates if a recording is available
+    @Published var isPaused: Bool = false                // Indicates if recording is paused
+    @Published var recordings: [URL] = []                // List of saved recording URLs
+    
+    private var audioRecorder: AVAudioRecorder!          // Audio recording functionality
+    private var isNewRecording: Bool = true              // New session or continuation of paused one
+    private var stopwatchTimer: Timer?                   // Stopwatch timer object
+    private var stopwatchStartDate: Date?                // Start date for stopwatch elapsed time
+    private var stopwatchElapsedTime: TimeInterval = 0   // Total elapsed time for stopwatch
 
     // MARK: - Initialization
     override init() {
         super.init()
         prepareRecordingSession()
     }
-
+    
     private func prepareRecordingSession() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.record, mode: .default)
@@ -34,7 +41,7 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
             print("Failed to set up recording session")
         }
     }
-
+    
     private func preparePlaybackSession() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -42,7 +49,7 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
             print("Failed to set up playback session")
         }
     }
-
+    
     // MARK: - Recording Controls
     func beginRecording() {
         prepareRecordingSession()
@@ -51,51 +58,39 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
             audioRecorder.record()
             isPaused = false
         } else {
-            let uniqueName = generateUniqueFileName()
-            prepareRecorder(uniqueName: uniqueName)
+            if isNewRecording {
+                let uniqueName = generateUniqueFileName()
+                prepareRecorder(uniqueName: uniqueName)
+            }
             audioRecorder.record()
-            recordings.append(getDocumentsDirectory().appendingPathComponent(uniqueName))
             stopwatchStartDate = Date()
             stopwatchElapsedTime = 0
         }
         startStopwatch()
         hasRecording = true
     }
-
-    private func generateUniqueFileName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyyMMddHHmmss"
-        return "recording_\(dateFormatter.string(from: Date())).m4a"
-    }
-
+    
     func stopRecording() {
         audioRecorder.pause()
         stopwatchElapsedTime += Date().timeIntervalSince(stopwatchStartDate!)
         stopwatchStartDate = nil
         isPaused = true
+        isNewRecording = false // Set to false when paused
         stopStopwatch()
-    }
-    
-    func updateRecordingsList() {
-        fetchRecordings()
     }
     
     func finalizeRecording() {
         audioRecorder.stop()
         resetStopwatch()
         updateRecordingsList()  // Update the recordings list
+        isNewRecording = true // Set to true when finalized
+        isPaused = false
     }
     
-    func startOver() {
-        audioRecorder.stop()
-        resetStopwatch()
-        // Use the URL of the last recording to delete it
-        if let lastRecording = recordings.last {
-            deleteRecording(url: lastRecording)
-            recordings.removeLast() // Remove the URL from the recordings array
-        }
-        hasRecording = false
-        isPaused = false
+    private func generateUniqueFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        return "recording_\(dateFormatter.string(from: Date())).m4a"
     }
 
     // MARK: - File Management
@@ -138,12 +133,9 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
         return paths[0]
     }
     
-    // Add this method to fetch and populate the 'recordings' array
-    func fetchRecordings() {
+    func updateRecordingsList() {
         do {
-            let documentsPath = getDocumentsDirectory().path
             let directoryContents = try FileManager.default.contentsOfDirectory(at: getDocumentsDirectory(), includingPropertiesForKeys: nil, options: [])
-
             recordings = directoryContents.filter { $0.pathExtension == "m4a" }
         } catch {
             print("Could not fetch recordings: \(error)")
