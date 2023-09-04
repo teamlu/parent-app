@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		A8A4582E3A09F4D10E7DEF45 /* Pods_parentTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD61C9597520E322E47EA142 /* Pods_parentTests.framework */; };
 		D377429C148BD9F11EFCDC06 /* Pods_parent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C745A5B9F22091D10C2F271 /* Pods_parent.framework */; };
+		E6A855712AA64D3600ADC1C8 /* AudioFileUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A855702AA64D3600ADC1C8 /* AudioFileUtility.swift */; };
+		E6A855732AA6524C00ADC1C8 /* AudioFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A855722AA6524C00ADC1C8 /* AudioFileManager.swift */; };
 		E6E44AD62A92063400204FC3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD52A92063400204FC3 /* AVFoundation.framework */; };
 		E6E44AD82A92063E00204FC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD72A92063E00204FC3 /* UIKit.framework */; };
 		E6E44ADA2A92064900204FC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD92A92064900204FC3 /* Foundation.framework */; };
@@ -51,6 +53,8 @@
 		C06ECDF8DF99786D1D07FC98 /* Pods-parent-parentUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-parent-parentUITests.release.xcconfig"; path = "Target Support Files/Pods-parent-parentUITests/Pods-parent-parentUITests.release.xcconfig"; sourceTree = "<group>"; };
 		CD61C9597520E322E47EA142 /* Pods_parentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_parentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCEDA03A7937B3BC3542ADAB /* Pods-parentTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-parentTests.release.xcconfig"; path = "Target Support Files/Pods-parentTests/Pods-parentTests.release.xcconfig"; sourceTree = "<group>"; };
+		E6A855702AA64D3600ADC1C8 /* AudioFileUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileUtility.swift; sourceTree = "<group>"; };
+		E6A855722AA6524C00ADC1C8 /* AudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileManager.swift; sourceTree = "<group>"; };
 		E6E44AD52A92063400204FC3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		E6E44AD72A92063E00204FC3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E6E44AD92A92064900204FC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -158,6 +162,8 @@
 				E6FAE87B2A91BB4B0016143E /* AudioRecorder.swift */,
 				E6FAE87F2A91FCB90016143E /* ParentApp-Bridging-Header.h */,
 				E6FAE8802A91FE070016143E /* RecordButtonView.swift */,
+				E6A855702AA64D3600ADC1C8 /* AudioFileUtility.swift */,
+				E6A855722AA6524C00ADC1C8 /* AudioFileManager.swift */,
 			);
 			path = frontend;
 			sourceTree = "<group>";
@@ -425,9 +431,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6A855712AA64D3600ADC1C8 /* AudioFileUtility.swift in Sources */,
 				E6FAE87C2A91BB4B0016143E /* AudioRecorder.swift in Sources */,
 				E6FAE8542A91B9470016143E /* ContentView.swift in Sources */,
 				E6FAE8522A91B9470016143E /* parentApp.swift in Sources */,
+				E6A855732AA6524C00ADC1C8 /* AudioFileManager.swift in Sources */,
 				E6FAE8812A91FE070016143E /* RecordButtonView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -112,17 +112,17 @@ struct ContentView: View {
                                     Text("Recording \(index + 1)")
                                         .fontWeight(.bold)
                                     Spacer()
-                                    Text(audioRecorder.getDuration(for: recordingURL)) // Assume you have a function to get duration
+                                    Text(audioRecorder.getDurationWrapper(for: recordingURL))  // Updated this line
                                         .fontWeight(.bold)
                                 }
                                 .foregroundColor(.black)
                                 
                                 HStack {
-                                    Text(audioRecorder.getDate(for: recordingURL)) // Assume you have a function to get date
+                                    Text(audioRecorder.getDateWrapper(for: recordingURL))  // Updated this line
                                     Spacer()
                                     Image(systemName: "circle.fill")
-                                        .foregroundColor(audioRecorder.getStatus(for: recordingURL) == .Processing ? .orange : .green) // Assume you have a function to get status
-                                    Text(audioRecorder.getStatus(for: recordingURL).rawValue) // Assume you have a function to get status
+                                        .foregroundColor(audioRecorder.getStatusWrapper(for: recordingURL) == .Processing ? .orange : .green) // Updated this line
+                                    Text(audioRecorder.getStatusWrapper(for: recordingURL).rawValue)  // Updated this line
                                 }
                                 .foregroundColor(.gray)
                             }
