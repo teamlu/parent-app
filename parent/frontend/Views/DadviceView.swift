@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct DadviceView: View {
-    @State var currentIndex: Int // index to control the current display in the carousel
-    var recordings: [URL] // Your array of recordings
+    @ObservedObject var viewModel: DadviceViewModel
 
     var body: some View {
         // Check if the currentIndex is within the valid range of the array
-        if recordings.indices.contains(currentIndex) {
+        if viewModel.recordings.indices.contains(viewModel.currentIndex) {
             NavigationView {
                 VStack {
                     Text("Dadvice")
@@ -22,22 +21,18 @@ struct DadviceView: View {
                     
                     // Editable Recording Name
                     // Replace with your method to get recording name
-                    TextField("Editable Recording Name", text: .constant("Recording \(currentIndex + 1)"))
+                    TextField("Editable Recording Name", text: .constant("Recording \(viewModel.currentIndex + 1)"))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
 
                     HStack {
                         // Left Carousel Arrow
-                        Button(action: {
-                            withAnimation {
-                                currentIndex = max(currentIndex - 1, 0)
-                            }
-                        }) {
+                        Button(action: viewModel.moveToPrevious) {
                             Image(systemName: "arrow.left.circle.fill")
                                 .font(.largeTitle)
-                                .opacity(currentIndex == 0 ? 0.4 : 1)
+                                .opacity(viewModel.currentIndex == 0 ? 0.4 : 1)
                         }
-                        .disabled(currentIndex == 0)
+                        .disabled(viewModel.currentIndex == 0)
 
                         VStack {
                             // Blue Rectangle
@@ -45,23 +40,19 @@ struct DadviceView: View {
                                 .fill(Color.blue)
                                 .frame(height: 300)
                                 .overlay(
-                                    Text("Your API-generated text here")
+                                    Text(viewModel.adviceText)
                                         .foregroundColor(.white)
                                         .padding()
                                 )
                         }
 
                         // Right Carousel Arrow
-                        Button(action: {
-                            withAnimation {
-                                currentIndex = min(currentIndex + 1, recordings.count - 1)
-                            }
-                        }) {
+                        Button(action: viewModel.moveToNext) {
                             Image(systemName: "arrow.right.circle.fill")
                                 .font(.largeTitle)
-                                .opacity(currentIndex == recordings.count - 1 ? 0.4 : 1)
+                                .opacity(viewModel.currentIndex == viewModel.recordings.count - 1 ? 0.4 : 1)
                         }
-                        .disabled(currentIndex == recordings.count - 1)
+                        .disabled(viewModel.currentIndex == viewModel.recordings.count - 1)
                     }
 
                     Spacer()
@@ -69,9 +60,7 @@ struct DadviceView: View {
                     // Share Icon (Bottom Right)
                     HStack {
                         Spacer()
-                        Button(action: {
-                            // Implement your sharing logic here
-                        }) {
+                        Button(action: viewModel.shareContent) {
                             Image(systemName: "square.and.arrow.up")
                                 .resizable()
                                 .frame(width: 30, height: 30)

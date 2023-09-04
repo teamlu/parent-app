@@ -15,6 +15,7 @@
 		E6A8557B2AA678AB00ADC1C8 /* DadviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A8557A2AA678AB00ADC1C8 /* DadviceView.swift */; };
 		E6A8557D2AA67AB300ADC1C8 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A8557C2AA67AB300ADC1C8 /* ContentViewModel.swift */; };
 		E6A8557F2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A8557E2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift */; };
+		E6A855812AA686C100ADC1C8 /* DadviceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A855802AA686C100ADC1C8 /* DadviceViewModel.swift */; };
 		E6E44AD62A92063400204FC3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD52A92063400204FC3 /* AVFoundation.framework */; };
 		E6E44AD82A92063E00204FC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD72A92063E00204FC3 /* UIKit.framework */; };
 		E6E44ADA2A92064900204FC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD92A92064900204FC3 /* Foundation.framework */; };
@@ -63,6 +64,7 @@
 		E6A8557A2AA678AB00ADC1C8 /* DadviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DadviceView.swift; sourceTree = "<group>"; };
 		E6A8557C2AA67AB300ADC1C8 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		E6A8557E2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingsListViewModel.swift; sourceTree = "<group>"; };
+		E6A855802AA686C100ADC1C8 /* DadviceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DadviceViewModel.swift; sourceTree = "<group>"; };
 		E6E44AD52A92063400204FC3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		E6E44AD72A92063E00204FC3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E6E44AD92A92064900204FC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -153,6 +155,7 @@
 			children = (
 				E6A8557C2AA67AB300ADC1C8 /* ContentViewModel.swift */,
 				E6A8557E2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift */,
+				E6A855802AA686C100ADC1C8 /* DadviceViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -479,6 +482,7 @@
 				E6FAE87C2A91BB4B0016143E /* AudioRecorder.swift in Sources */,
 				E6FAE8542A91B9470016143E /* ContentView.swift in Sources */,
 				E6FAE8522A91B9470016143E /* parentApp.swift in Sources */,
+				E6A855812AA686C100ADC1C8 /* DadviceViewModel.swift in Sources */,
 				E6A8557F2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift in Sources */,
 				E6A855732AA6524C00ADC1C8 /* AudioFileManager.swift in Sources */,
 				E6A8557D2AA67AB300ADC1C8 /* ContentViewModel.swift in Sources */,
