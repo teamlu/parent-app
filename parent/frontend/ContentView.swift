@@ -12,47 +12,75 @@ struct ContentView: View {
     @State var isRecording = false                    // Indicates if currently recording
     @State var canSave = false                        // Indicates if the recording can be saved
     @State var shouldSaveRecording = false            // Flag for showing the list of saved recordings
+    @State private var showSplash = true              // Flag for splash screen
+    @State private var showParentAppText = false      // Flag for Parent App text
     
     var body: some View {
         NavigationView {
-            VStack {
-                Text("Parent App")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+            ZStack {
+                // Main Content
+                VStack {
+                    if showParentAppText {
+                        Text("Parent App")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding()
+                    }
+                    
+                    RecordingsListView(audioRecorder: audioRecorder, shouldShow: $shouldSaveRecording)
+                    
+                    HStack {
+                        Image(systemName: isRecording ? "stop.fill" : "record.circle")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(isRecording ? .red : .gray)
+                            .onTapGesture {
+                                isRecording.toggle()
+                                if isRecording {
+                                    audioRecorder.beginRecording()
+                                    canSave = true
+                                } else {
+                                    audioRecorder.stopRecording()
+                                }
+                            }
+                    }
                     .padding()
+                    
+                    Button("Save") {
+                        shouldSaveRecording = true  // Show the recording list after the first recording
+                        audioRecorder.finalizeRecording()
+                        audioRecorder.updateRecordingsList()  // Update the recordings list
+                        canSave = false
+                    }
+                    .disabled(!canSave)
+                    .foregroundColor(canSave ? .blue : .gray)
+                    
+                    Text(audioRecorder.stopwatchText)
+                        .font(.title)
+                        .fontWeight(.medium)
+                        .padding()
+                }
                 
-                RecordingsListView(audioRecorder: audioRecorder, shouldShow: $shouldSaveRecording)
-                
-                HStack {
-                    Image(systemName: isRecording ? "stop.fill" : "record.circle")
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(isRecording ? .red : .gray)
-                        .onTapGesture {
-                            isRecording.toggle()
-                            if isRecording {
-                                audioRecorder.beginRecording()
-                                canSave = true
-                            } else {
-                                audioRecorder.stopRecording()
+                // Splash screen
+                if showSplash {
+                    VStack {
+                        Text("guardiin")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    .background(Color.black)
+                    .foregroundColor(Color.white)
+                    .edgesIgnoringSafeArea(.all)
+                    .onAppear() {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation {
+                                self.showSplash = false
+                                self.showParentAppText = true
                             }
                         }
+                    }
                 }
-                .padding()
-                
-                Button("Save") {
-                    shouldSaveRecording = true  // Show the recording list after the first recording
-                    audioRecorder.finalizeRecording()
-                    audioRecorder.updateRecordingsList()  // Update the recordings list
-                    canSave = false
-                }
-                .disabled(!canSave)
-                .foregroundColor(canSave ? .blue : .gray)
-                
-                Text(audioRecorder.stopwatchText)
-                    .font(.title)
-                    .fontWeight(.medium)
-                    .padding()
             }
         }
     }
