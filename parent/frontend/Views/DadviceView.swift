@@ -9,31 +9,66 @@ import SwiftUI
 
 struct DadviceView: View {
     @ObservedObject var viewModel: DadviceViewModel
-
+    @State private var tempName: String = ""
+    @State private var isEditing: Bool = false
+    @State private var offset: CGFloat = 0
+    
     var body: some View {
-        // Check if the currentIndex is within the valid range of the array
-        if viewModel.recordings.indices.contains(viewModel.currentIndex) {
-            NavigationView {
+        NavigationView {
+            ZStack {
+                Color(UIColor.secondarySystemBackground)
+                    .ignoresSafeArea()
+                
                 VStack {
                     Text("Dadvice")
-                        .font(.title)
+                        .font(.largeTitle)
                         .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white)
                     
-                    // Editable Recording Name
-                    // Replace with your method to get recording name
-                    TextField("Editable Recording Name", text: .constant("Recording \(viewModel.currentIndex + 1)"))
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-
+                    HStack {
+                        if !isEditing {
+                            Text(viewModel.currentRecording?.name ?? "")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Button(action: { isEditing = true }) {
+                                Image(systemName: "pencil")
+                            }
+                        } else {
+                            TextField("Recording Name", text: $tempName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            Button("Save") {
+                                if let recording = viewModel.currentRecording {
+                                    recording.name = tempName
+                                    viewModel.onRecordingUpdated?(recording)
+                                }
+                                isEditing = false
+                            }
+                        }
+                    }
+                    .padding()
+                    .onAppear {
+                        self.tempName = viewModel.currentRecording?.name ?? ""
+                    }
+                    .onReceive(viewModel.$currentRecording) { newRecording in
+                        tempName = newRecording?.name ?? ""
+                    }
+                    
                     HStack {
                         // Left Carousel Arrow
-                        Button(action: viewModel.moveToPrevious) {
+                        Button(action: {
+                            withAnimation {
+                                offset += 400
+                                viewModel.moveToPrevious()
+                            }
+                        }) {
                             Image(systemName: "arrow.left.circle.fill")
                                 .font(.largeTitle)
                                 .opacity(viewModel.currentIndex == 0 ? 0.4 : 1)
                         }
                         .disabled(viewModel.currentIndex == 0)
-
+                        
                         VStack {
                             // Blue Rectangle
                             RoundedRectangle(cornerRadius: 15)
@@ -44,19 +79,32 @@ struct DadviceView: View {
                                         .foregroundColor(.white)
                                         .padding()
                                 )
+                                .offset(x: offset)
                         }
-
+                        
                         // Right Carousel Arrow
-                        Button(action: viewModel.moveToNext) {
+                        Button(action: {
+                            withAnimation {
+                                offset -= 400
+                                viewModel.moveToNext()
+                            }
+                        }) {
                             Image(systemName: "arrow.right.circle.fill")
                                 .font(.largeTitle)
                                 .opacity(viewModel.currentIndex == viewModel.recordings.count - 1 ? 0.4 : 1)
                         }
                         .disabled(viewModel.currentIndex == viewModel.recordings.count - 1)
                     }
-
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation {
+                                offset = 0
+                            }
+                        }
+                    }
+                    
                     Spacer()
-
+                    
                     // Share Icon (Bottom Right)
                     HStack {
                         Spacer()
@@ -69,8 +117,8 @@ struct DadviceView: View {
                         }
                     }
                 }
-                .navigationBarTitle("", displayMode: .inline)
             }
+            .navigationBarHidden(true)
         }
     }
 }

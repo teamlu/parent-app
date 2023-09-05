@@ -10,44 +10,66 @@ import Combine
 import SwiftUI
 
 class DadviceViewModel: ObservableObject {
-    @Published var currentIndex: Int // Index to control the current display in the carousel
+    @Published var currentIndex: Int
     @Published var adviceText: String = "Loading advice..."
+    @Published var currentRecording: Recording?
+
+    var recordings: [URL]
+    var recordingObjects: [Recording]
+    var onRecordingUpdated: ((Recording) -> Void)?
     
-    var recordings: [URL] // Your array of recordings
     private var cancellables: Set<AnyCancellable> = []
     
-    init(currentIndex: Int, recordings: [URL]) {
+    init(currentIndex: Int, recordings: [URL], recordingObjects: [Recording]) {
         self.currentIndex = currentIndex
         self.recordings = recordings
+        self.recordingObjects = recordingObjects
+        if let initialRecording = getRecordingForCurrentIndex() {
+            self.currentRecording = initialRecording
+        }
         fetchDadAdvice()
     }
     
-    // Function to fetch Dad advice from an API
-    // You can replace this function with an actual API call
     func fetchDadAdvice() {
-        // Simulated API call, replace with your own API logic
+        // Simulated API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.adviceText = "Always remember to tie your shoes."
         }
     }
     
-    // Function to move to the previous recording
     func moveToPrevious() {
-        withAnimation {
-            currentIndex = max(currentIndex - 1, 0)
-        }
+        currentIndex = max(currentIndex - 1, 0)
+        refreshCurrentRecording()
     }
     
-    // Function to move to the next recording
     func moveToNext() {
-        withAnimation {
-            currentIndex = min(currentIndex + 1, recordings.count - 1)
+        currentIndex = min(currentIndex + 1, recordings.count - 1)
+        refreshCurrentRecording()
+    }
+    
+    func refreshCurrentRecording() {
+        if let newRecording = getRecordingForCurrentIndex() {
+            currentRecording = newRecording
         }
     }
     
-    // Function to share content
-    // You can add sharing logic here
+    func getRecordingForCurrentIndex() -> Recording? {
+        guard recordings.indices.contains(currentIndex) else {
+            return nil
+        }
+        let currentURL = recordings[currentIndex]
+        return recordingObjects.first { $0.url == currentURL }
+    }
+    
+    func saveChanges(for recording: Recording) {
+        // Save to persistent storage logic here
+        if let index = recordingObjects.firstIndex(where: { $0.url == recording.url }) {
+            recordingObjects[index] = recording
+        }
+        onRecordingUpdated?(recording)
+    }
+    
     func shareContent() {
-        // Your sharing logic
+        // Your sharing logic here
     }
 }

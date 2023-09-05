@@ -16,6 +16,7 @@
 		E6A8557D2AA67AB300ADC1C8 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A8557C2AA67AB300ADC1C8 /* ContentViewModel.swift */; };
 		E6A8557F2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A8557E2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift */; };
 		E6A855812AA686C100ADC1C8 /* DadviceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A855802AA686C100ADC1C8 /* DadviceViewModel.swift */; };
+		E6A855832AA68A9000ADC1C8 /* Recording.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A855822AA68A9000ADC1C8 /* Recording.swift */; };
 		E6E44AD62A92063400204FC3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD52A92063400204FC3 /* AVFoundation.framework */; };
 		E6E44AD82A92063E00204FC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD72A92063E00204FC3 /* UIKit.framework */; };
 		E6E44ADA2A92064900204FC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E44AD92A92064900204FC3 /* Foundation.framework */; };
@@ -65,6 +66,7 @@
 		E6A8557C2AA67AB300ADC1C8 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		E6A8557E2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingsListViewModel.swift; sourceTree = "<group>"; };
 		E6A855802AA686C100ADC1C8 /* DadviceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DadviceViewModel.swift; sourceTree = "<group>"; };
+		E6A855822AA68A9000ADC1C8 /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
 		E6E44AD52A92063400204FC3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		E6E44AD72A92063E00204FC3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E6E44AD92A92064900204FC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -163,6 +165,7 @@
 		E6A855762AA676A400ADC1C8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E6A855822AA68A9000ADC1C8 /* Recording.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -485,6 +488,7 @@
 				E6A855812AA686C100ADC1C8 /* DadviceViewModel.swift in Sources */,
 				E6A8557F2AA67D9F00ADC1C8 /* RecordingsListViewModel.swift in Sources */,
 				E6A855732AA6524C00ADC1C8 /* AudioFileManager.swift in Sources */,
+				E6A855832AA68A9000ADC1C8 /* Recording.swift in Sources */,
 				E6A8557D2AA67AB300ADC1C8 /* ContentViewModel.swift in Sources */,
 				E6A855792AA677A500ADC1C8 /* RecordingsListView.swift in Sources */,
 				E6FAE8812A91FE070016143E /* RecordButtonView.swift in Sources */,

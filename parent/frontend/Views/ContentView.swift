@@ -72,12 +72,6 @@ struct ContentView: View {
     }
 }
 
-struct Recording: Identifiable {
-    var id: String // Some unique id, could be the file URL
-    var name: String // Recording name
-    // Other properties such as Date, Status, etc.
-}
-
 class RecordingsManager: ObservableObject {
     @Published var recordings: [Recording] = [] // Populate this array as needed
 }
