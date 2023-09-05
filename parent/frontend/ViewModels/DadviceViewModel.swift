@@ -1,10 +1,3 @@
-//
-//  DadviceViewModel.swift
-//  parent
-//
-//  Created by Tim Lu on 9/4/23.
-//
-
 import Foundation
 import Combine
 import SwiftUI
@@ -13,10 +6,18 @@ class DadviceViewModel: ObservableObject {
     @Published var currentIndex: Int
     @Published var adviceText: String = "Loading advice..."
     @Published var currentRecording: Recording?
-
+    
     var recordings: [URL]
     var recordingObjects: [Recording]
     var onRecordingUpdated: ((Recording) -> Void)?
+    
+    var atBeginning: Bool { // Computed property to check if at the beginning
+        return currentIndex == 0
+    }
+    
+    var atEnd: Bool { // Computed property to check if at the end
+        return currentIndex == (recordings.count - 1)
+    }
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -24,32 +25,53 @@ class DadviceViewModel: ObservableObject {
         self.currentIndex = currentIndex
         self.recordings = recordings
         self.recordingObjects = recordingObjects
+        
         if let initialRecording = getRecordingForCurrentIndex() {
             self.currentRecording = initialRecording
+            self.adviceText = initialRecording.adviceText ?? "Loading advice..."
         }
+        
         fetchDadAdvice()
     }
     
     func fetchDadAdvice() {
         // Simulated API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            self?.adviceText = "Always remember to tie your shoes."
+            guard let self = self else { return }
+            self.adviceText = "Always remember to tie your shoes."
+            if var current = self.currentRecording {
+                current.adviceText = self.adviceText
+                self.onRecordingUpdated?(current)
+            }
         }
     }
     
     func moveToPrevious() {
-        currentIndex = max(currentIndex - 1, 0)
-        refreshCurrentRecording()
+        if !atBeginning {
+            currentIndex -= 1
+            refreshCurrentRecording()
+            saveCurrentRecording()
+        }
     }
     
     func moveToNext() {
-        currentIndex = min(currentIndex + 1, recordings.count - 1)
-        refreshCurrentRecording()
+        if !atEnd {
+            currentIndex += 1
+            refreshCurrentRecording()
+            saveCurrentRecording()
+        }
+    }
+    
+    func saveCurrentRecording() {
+        if let recording = getRecordingForCurrentIndex() {
+            self.currentRecording = recording
+        }
     }
     
     func refreshCurrentRecording() {
         if let newRecording = getRecordingForCurrentIndex() {
             currentRecording = newRecording
+            adviceText = newRecording.adviceText ?? "Loading advice..."
         }
     }
     

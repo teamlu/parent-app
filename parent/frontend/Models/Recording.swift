@@ -20,13 +20,15 @@ class Recording: Identifiable, ObservableObject {
     var duration: Double
     var status: RecordingStatus
     var url: URL
-
-    init(id: UUID, name: String, date: Date, duration: Double, status: RecordingStatus, url: URL) {
+    @Published var adviceText: String?  // Added property for storing advice text
+    
+    init(id: UUID, name: String, date: Date, duration: Double, status: RecordingStatus, url: URL, adviceText: String? = nil) {
         self.id = id
         self.name = name
         self.date = date
         self.duration = duration
         self.status = status
         self.url = url
+        self.adviceText = adviceText // Initialize with nil or existing adviceText
     }
 }

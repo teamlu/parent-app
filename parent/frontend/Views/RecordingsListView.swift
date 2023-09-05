@@ -1,60 +1,60 @@
-//
-//  RecordingsListView.swift
-//  parent
-//
-//  Created by Tim Lu on 9/4/23.
-//
+    //
+    //  RecordingsListView.swift
+    //  parent
+    //
+    //  Created by Tim Lu on 9/4/23.
+    //
 
-import SwiftUI
-import AVFoundation
+    import SwiftUI
+    import AVFoundation
 
-struct RecordingsListView: View {
-    @ObservedObject var viewModel: RecordingsListViewModel
-    @Binding var shouldShow: Bool
-    
-    var body: some View {
-        if shouldShow {
-            List {
-                ForEach(viewModel.recordings, id: \.id) { recording in
-                    // Initialize DadviceViewModel for each recording
-                    let dadviceViewModel = viewModel.dadviceViewModel(for: recording)
-                    
-                    // Set up Navigation Link to DadviceView
-                    NavigationLink(destination: DadviceView(viewModel: dadviceViewModel)) {
+    struct RecordingsListView: View {
+        @ObservedObject var viewModel: RecordingsListViewModel
+        @Binding var shouldShow: Bool
+        
+        var body: some View {
+            if shouldShow {
+                List {
+                    ForEach(viewModel.recordings, id: \.id) { recording in
+                        // Initialize DadviceViewModel for each recording
+                        let dadviceViewModel = viewModel.dadviceViewModel(for: recording)
                         
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text(recording.name)
-                                    .fontWeight(.bold)
-                                Spacer()
-                                Text("\(recording.duration, specifier: "%.2f")s")
-                                    .fontWeight(.bold)
-                            }
-                            .foregroundColor(.black)
+                        // Set up Navigation Link to DadviceView
+                        NavigationLink(destination: DadviceView(viewModel: dadviceViewModel)) {
                             
-                            HStack {
-                                Text(recording.date, style: .date)
-                                Spacer()
-                                Image(systemName: "circle.fill")
-                                    .foregroundColor(recording.status == .processing ? .orange : .green)
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text(recording.name)
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Text("\(recording.duration, specifier: "%.2f")s")
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(.black)
+                                
+                                HStack {
+                                    Text(recording.date, style: .date)
+                                    Spacer()
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(recording.status == .processing ? .orange : .green)
+                                }
+                                .foregroundColor(.gray)
                             }
-                            .foregroundColor(.gray)
                         }
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button("Play") {
-                            viewModel.playRecording(recording: recording)
+                        .swipeActions(edge: .leading) {
+                            Button("Play") {
+                                viewModel.playRecording(recording: recording)
+                            }
+                            .tint(.blue)
                         }
-                        .tint(.blue)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button("Delete") {
-                            viewModel.deleteRecording(recording: recording)
+                        .swipeActions(edge: .trailing) {
+                            Button("Delete") {
+                                viewModel.deleteRecording(recording: recording)
+                            }
+                            .tint(.red)
                         }
-                        .tint(.red)
                     }
                 }
             }
         }
     }
-}

@@ -1,10 +1,3 @@
-//
-//  DadviceView.swift
-//  parent
-//
-//  Created by Tim Lu on 9/4/23.
-//
-
 import SwiftUI
 
 struct DadviceView: View {
@@ -13,19 +6,28 @@ struct DadviceView: View {
     @State private var isEditing: Bool = false
     @State private var offset: CGFloat = 0
     
+    init(viewModel: DadviceViewModel) {
+        self.viewModel = viewModel
+        
+        // Set initial offset based on the current index
+        self._offset = State(initialValue: -CGFloat(viewModel.currentIndex * 275))
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
+                // Background color for the entire screen
                 Color(UIColor.secondarySystemBackground)
                     .ignoresSafeArea()
                 
                 VStack {
+                    // Dadvice Header
                     Text("Dadvice")
                         .font(.largeTitle)
+                        .fontWeight(.bold)
                         .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white)
                     
+                    // Recording Name
                     HStack {
                         if !isEditing {
                             Text(viewModel.currentRecording?.name ?? "")
@@ -47,63 +49,51 @@ struct DadviceView: View {
                             }
                         }
                     }
-                    .padding()
-                    .onAppear {
-                        self.tempName = viewModel.currentRecording?.name ?? ""
-                    }
-                    .onReceive(viewModel.$currentRecording) { newRecording in
-                        tempName = newRecording?.name ?? ""
-                    }
+                    .padding([.leading, .trailing])
+                    .padding(.top, 10)
                     
+                    // Carousel
                     HStack {
                         // Left Carousel Arrow
                         Button(action: {
                             withAnimation {
-                                offset += 400
                                 viewModel.moveToPrevious()
+                                self.offset += 275
                             }
                         }) {
                             Image(systemName: "arrow.left.circle.fill")
                                 .font(.largeTitle)
-                                .opacity(viewModel.currentIndex == 0 ? 0.4 : 1)
                         }
-                        .disabled(viewModel.currentIndex == 0)
-                        
-                        VStack {
-                            // Blue Rectangle
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.blue)
-                                .frame(height: 300)
-                                .overlay(
-                                    Text(viewModel.adviceText)
-                                        .foregroundColor(.white)
-                                        .padding()
-                                )
-                                .offset(x: offset)
+                        .disabled(viewModel.atBeginning)
+                       
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 25) {
+                                ForEach(0..<viewModel.recordingObjects.count, id: \.self) { index in
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .fill(Color.blue)
+                                        .frame(width: 250, height: 400)
+                                        .overlay(
+                                            Text(viewModel.recordingObjects[index].adviceText ?? "Loading advice...")
+                                                .foregroundColor(.white)
+                                                .padding()
+                                        )
+                                }
+                            }
+                            .offset(x: self.offset)
                         }
                         
                         // Right Carousel Arrow
                         Button(action: {
                             withAnimation {
-                                offset -= 400
                                 viewModel.moveToNext()
+                                self.offset -= 275
                             }
                         }) {
                             Image(systemName: "arrow.right.circle.fill")
                                 .font(.largeTitle)
-                                .opacity(viewModel.currentIndex == viewModel.recordings.count - 1 ? 0.4 : 1)
                         }
-                        .disabled(viewModel.currentIndex == viewModel.recordings.count - 1)
+                        .disabled(viewModel.atEnd)
                     }
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation {
-                                offset = 0
-                            }
-                        }
-                    }
-                    
-                    Spacer()
                     
                     // Share Icon (Bottom Right)
                     HStack {
@@ -116,9 +106,15 @@ struct DadviceView: View {
                                 .background(Circle().fill(Color.gray))
                         }
                     }
+                    .padding(.bottom)
                 }
+                .padding([.leading, .trailing])
             }
             .navigationBarHidden(true)
+        }
+        .onAppear {
+            // Update the UI with the correct initial state when this view appears
+            tempName = viewModel.currentRecording?.name ?? ""
         }
     }
 }
