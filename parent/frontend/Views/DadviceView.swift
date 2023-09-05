@@ -1,3 +1,10 @@
+//
+//  DadviceView.swift
+//  parent
+//
+//  Created by Tim Lu on 8/19/23.
+//
+
 import SwiftUI
 
 struct DadviceView: View {
@@ -11,6 +18,7 @@ struct DadviceView: View {
         
         // Set initial offset based on the current index
         self._offset = State(initialValue: -CGFloat(viewModel.currentIndex * 275))
+        self._tempName = State(initialValue: viewModel.currentRecording?.name ?? "")
     }
     
     var body: some View {
@@ -113,8 +121,15 @@ struct DadviceView: View {
             .navigationBarHidden(true)
         }
         .onAppear {
-            // Update the UI with the correct initial state when this view appears
             tempName = viewModel.currentRecording?.name ?? ""
+            print("onAppear: Current index is \(viewModel.currentIndex)") // Debug
+
+        }
+        .onChange(of: viewModel.currentIndex) { newIndex in
+            print("onChange: Current index has changed to \(newIndex)") // Debug
+            // Update the offset and tempName whenever currentIndex changes
+            self.offset = -CGFloat(newIndex * 275)
+            self.tempName = viewModel.currentRecording?.name ?? ""
         }
     }
 }

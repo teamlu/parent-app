@@ -14,6 +14,9 @@ class RecordingsListViewModel: ObservableObject {
     
     private var audioPlayer: AVAudioPlayer? = nil
     
+    // Memoization dictionary to store DadviceViewModel instances
+    private var dadviceViewModels: [UUID: DadviceViewModel] = [:]
+    
     init(audioRecorder: AudioRecorder) {
         self.audioRecorder = audioRecorder
         // Load the initial list of recordings
@@ -30,23 +33,33 @@ class RecordingsListViewModel: ObservableObject {
     }
     
     func dadviceViewModel(for recording: Recording) -> DadviceViewModel {
+        // Check for an existing ViewModel first
+        if let existingViewModel = dadviceViewModels[recording.id] {
+            return existingViewModel
+        }
+        
         let allRecordingURLs = recordings.map { $0.url }.reversed()
         let reversedRecordings = Array(recordings.reversed())
         let currentIndex = reversedRecordings.firstIndex(where: { $0.id == recording.id }) ?? 0
         
-        let dadviceViewModel = DadviceViewModel(
+        // Create a new ViewModel if one doesn't exist
+        let newViewModel = DadviceViewModel(
             currentIndex: currentIndex,
             recordings: Array(allRecordingURLs),
-            recordingObjects: reversedRecordings // Passing the array of Recording objects
+            recordingObjects: reversedRecordings
         )
         
         // Set the onRecordingUpdated closure
-        dadviceViewModel.onRecordingUpdated = { [weak self] updatedRecording in
+        newViewModel.onRecordingUpdated = { [weak self] updatedRecording in
             self?.updateRecording(updatedRecording)
         }
         
-        dadviceViewModel.refreshCurrentRecording()
-        return dadviceViewModel
+        newViewModel.refreshCurrentRecording()
+        
+        // Store the new ViewModel in the dictionary
+        dadviceViewModels[recording.id] = newViewModel
+        
+        return newViewModel
     }
     
     func getAudioDuration(url: URL) -> Double {
@@ -103,6 +116,10 @@ class RecordingsListViewModel: ObservableObject {
                 if let index = recordings.firstIndex(where: { $0.id == recording.id }) {
                     recordings.remove(at: index)
                 }
+                
+                // Remove the ViewModel associated with this recording
+                dadviceViewModels.removeValue(forKey: recording.id)
+                
             } catch {
                 print("Failed to delete recording: \(error.localizedDescription)")
             }

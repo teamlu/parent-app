@@ -1,9 +1,21 @@
+//
+//  DadviceView.swift
+//  parent
+//
+//  Created by Tim Lu on 8/19/23.
+//
+
 import Foundation
 import Combine
 import SwiftUI
 
 class DadviceViewModel: ObservableObject {
-    @Published var currentIndex: Int
+    @Published var currentIndex: Int {
+        didSet {
+            refreshCurrentRecording()
+            saveCurrentRecording()
+        }
+    }
     @Published var adviceText: String = "Loading advice..."
     @Published var currentRecording: Recording?
     
@@ -11,11 +23,11 @@ class DadviceViewModel: ObservableObject {
     var recordingObjects: [Recording]
     var onRecordingUpdated: ((Recording) -> Void)?
     
-    var atBeginning: Bool { // Computed property to check if at the beginning
+    var atBeginning: Bool {
         return currentIndex == 0
     }
     
-    var atEnd: Bool { // Computed property to check if at the end
+    var atEnd: Bool {
         return currentIndex == (recordings.count - 1)
     }
     
