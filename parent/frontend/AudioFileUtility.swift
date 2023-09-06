@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 class AudioFileUtility {
     
@@ -16,10 +17,16 @@ class AudioFileUtility {
         let milliseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 100)
         return String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
     }
- 
-    func getDuration(for url: URL) -> String {
-        // TODO: Implement the logic to get duration of the audio file
-        return "00:00"
+    
+    func getDuration(for url: URL) -> Double {
+        var duration: Double = 0
+        do {
+            let audioAsset = try AVAudioPlayer(contentsOf: url)
+            duration = audioAsset.duration
+        } catch {
+            print("Could not load file for duration: \(error.localizedDescription)")
+        }
+        return duration
     }
 
     func getDate(for url: URL) -> String {
@@ -27,6 +34,7 @@ class AudioFileUtility {
         return "yyyy/MM/dd"
     }
 
+    // THis is duplicated in Recording model
     enum RecordingStatus: String {
         case Processing = "Processing"
         case Done = "Done"

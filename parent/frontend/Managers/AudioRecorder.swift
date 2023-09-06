@@ -4,11 +4,6 @@
 //
 //  Created by Tim Lu on 8/19/23.
 //
-// NOTE: CONSOLIDATING FILE MANAGEMENT METHODS
-//       Consider moving the file management functions (prepareRecorder, deleteRecording,
-//       getDocumentsDirectory, fetchRecordings) to a separate helper class to keep your
-//       AudioRecorder class focused on audio recording logic. This is more of an architectural
-//       choice and depends on how complex your project is.
 
 import Foundation
 import AVFoundation
@@ -19,8 +14,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     @Published var stopwatchText: String = "00:00:00"
     @Published var hasRecording: Bool = false
     @Published var isPaused: Bool = false
-    @Published var recordings: [URL] = []
-    
+    @Published var recordings: [Recording] = []
+
     private var audioRecorder: AVAudioRecorder!
     private var isNewRecording: Bool = true
     private var stopwatchTimer: Timer?
@@ -29,6 +24,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     
     private var audioFileManager = AudioFileManager()
     private var audioFileUtility = AudioFileUtility()
+    
+    var recordingsListViewModel: RecordingsListViewModel?
     
     // MARK: - Initialization
     override init() {
@@ -55,8 +52,13 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
             isPaused = false
         } else {
             if isNewRecording {
-                let uniqueName = audioFileManager.generateUniqueFileName()
-                audioRecorder = audioFileManager.prepareRecorder(uniqueName: uniqueName)
+                let (newRecorder, defaultName) = audioFileManager.prepareRecorderAndDefaultName()
+                audioRecorder = newRecorder
+                
+                // Save the default name to UserDefaults
+                if let url = audioRecorder?.url {
+                    UserDefaults.standard.set(defaultName, forKey: url.absoluteString)
+                }
             }
             audioRecorder.record()
             stopwatchStartDate = Date()
@@ -84,7 +86,23 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     }
     
     func updateRecordingsList() {
-        recordings = audioFileManager.fetchRecordings()
+        let fetchedURLs = audioFileManager.fetchRecordings()
+        recordings = fetchedURLs.map { url in
+            // Existing code for date, duration, etc.
+            let duration = audioFileUtility.getDuration(for: url)
+            
+            let dateString = audioFileUtility.getDate(for: url)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "YourDateFormatHere"  // Replace with the actual date format
+            let date = dateFormatter.date(from: dateString) ?? Date()  // Convert String to Date
+
+            let status = RecordingStatus(rawValue: audioFileUtility.getStatus(for: url).rawValue) ?? .completed  // Convert AudioFileUtility.RecordingStatus to RecordingStatus
+            
+            let name = audioFileManager.fetchRecordingName(for: url) ?? "Unnamed"
+
+            return Recording(id: UUID(), name: name, date: date, duration: duration, status: status, url: url)
+        }
+        recordingsListViewModel?.loadRecordings()  // Notify the viewModel to update its list
     }
     
     // MARK: - Stopwatch Controls
@@ -117,7 +135,8 @@ class AudioRecorder: NSObject, ObservableObject, AVAudioRecorderDelegate {
     // MARK: - Wrapper Methods for Utility Functions
     
     func getDurationWrapper(for url: URL) -> String {
-        return audioFileUtility.getDuration(for: url)
+        let duration = audioFileUtility.getDuration(for: url)
+        return audioFileUtility.formatTime(duration)
     }
 
     func getDateWrapper(for url: URL) -> String {

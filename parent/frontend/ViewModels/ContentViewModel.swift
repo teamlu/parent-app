@@ -24,6 +24,10 @@ class ContentViewModel: ObservableObject {
     
     init(audioRecorder: AudioRecorder) {
         self.audioRecorder = audioRecorder
+        let recordingsListViewModel = RecordingsListViewModel(audioRecorder: audioRecorder)
+        audioRecorder.recordingsListViewModel = recordingsListViewModel  // Add this line
+        // Trigger an initial load
+        recordingsListViewModel.loadRecordings()
     }
     
     // Function to toggle recording state

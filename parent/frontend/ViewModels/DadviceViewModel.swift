@@ -16,12 +16,16 @@ class DadviceViewModel: ObservableObject {
             saveCurrentRecording()
         }
     }
+
     @Published var adviceText: String = "Loading advice..."
     @Published var currentRecording: Recording?
     
     var recordings: [URL]
     var recordingObjects: [Recording]
     var onRecordingUpdated: ((Recording) -> Void)?
+    var audioRecorder: AudioRecorder?
+    var audioFileManager = AudioFileManager()
+    var audioFileUtility = AudioFileUtility()
     
     var atBeginning: Bool {
         return currentIndex == 0
@@ -33,10 +37,11 @@ class DadviceViewModel: ObservableObject {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    init(currentIndex: Int, recordings: [URL], recordingObjects: [Recording]) {
+    init(currentIndex: Int, recordings: [URL], recordingObjects: [Recording], audioRecorder: AudioRecorder? = nil) {
         self.currentIndex = currentIndex
         self.recordings = recordings
         self.recordingObjects = recordingObjects
+        self.audioRecorder = audioRecorder  // Add this line
         
         if let initialRecording = getRecordingForCurrentIndex() {
             self.currentRecording = initialRecording
@@ -96,10 +101,18 @@ class DadviceViewModel: ObservableObject {
     }
     
     func saveChanges(for recording: Recording) {
-        // Save to persistent storage logic here
+        // Save to UserDefaults
+        audioFileManager.saveRecordingName(recording.name, for: recording.url)
+
+        // Save to your recordingObjects array
         if let index = recordingObjects.firstIndex(where: { $0.url == recording.url }) {
             recordingObjects[index] = recording
         }
+        
+        // Notify AudioRecorder to update its list
+        audioRecorder?.updateRecordingsList()
+        
+        // Call onRecordingUpdated to update the UI
         onRecordingUpdated?(recording)
     }
     

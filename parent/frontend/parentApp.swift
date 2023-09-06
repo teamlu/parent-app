@@ -14,6 +14,7 @@ struct parentApp: App {
     
     init() {
         viewModel = ContentViewModel(audioRecorder: audioRecorder)
+        audioRecorder.updateRecordingsList() // Initialize the recordings list
     }
     
     var body: some Scene {

@@ -15,6 +15,14 @@ class AudioFileManager {
         return "recording_\(dateFormatter.string(from: Date())).m4a"
     }
     
+    func saveRecordingName(_ name: String, for url: URL) {
+        UserDefaults.standard.set(name, forKey: url.absoluteString)
+    }
+
+    func fetchRecordingName(for url: URL) -> String? {
+        return UserDefaults.standard.string(forKey: url.absoluteString)
+    }
+    
     func prepareRecorder(uniqueName: String) -> AVAudioRecorder? {
         let url = getDocumentsDirectory().appendingPathComponent(uniqueName)
         var audioRecorder: AVAudioRecorder?
@@ -64,4 +72,17 @@ class AudioFileManager {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
+    
+    func prepareRecorderAndDefaultName() -> (AVAudioRecorder?, String) {
+        let uniqueName = generateUniqueFileName()
+        let audioRecorder = prepareRecorder(uniqueName: uniqueName)
+        
+        // Update the counter and generate a new default name
+        let counter = UserDefaults.standard.integer(forKey: "RecordingCounter") + 1
+        UserDefaults.standard.set(counter, forKey: "RecordingCounter")
+        let defaultName = "Recording \(counter)"
+        
+        return (audioRecorder, defaultName)
+    }
+
 }

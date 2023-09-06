@@ -12,6 +12,7 @@ class RecordingsListViewModel: ObservableObject {
     @Published var audioRecorder: AudioRecorder
     @Published var recordings: [Recording] = []
     
+    var audioFileUtility = AudioFileUtility()
     private var audioPlayer: AVAudioPlayer? = nil
     
     // Memoization dictionary to store DadviceViewModel instances
@@ -24,12 +25,18 @@ class RecordingsListViewModel: ObservableObject {
     }
     
     func loadRecordings() {
-        let loadedRecordings = audioRecorder.recordings.enumerated().map { (index, url) in
-            let duration = getAudioDuration(url: url)
-            return Recording(id: UUID(), name: "Recording \(index + 1)", date: Date(), duration: duration, status: .completed, url: url)
+        self.recordings = audioRecorder.recordings.sorted { $0.date > $1.date }
+        // Update duration for each recording
+        for i in 0..<recordings.count {
+            audioFileUtility.getDuration(for: recordings[i].url)
         }
-        
-        self.recordings = loadedRecordings.sorted { $0.date > $1.date }
+    }
+
+    func updateRecording(_ recording: Recording) {
+        if let index = recordings.firstIndex(where: { $0.id == recording.id }) {
+            recordings[index] = recording
+            audioFileUtility.getDuration(for: recording.url)
+        }
     }
     
     func dadviceViewModel(for recording: Recording) -> DadviceViewModel {
@@ -62,23 +69,6 @@ class RecordingsListViewModel: ObservableObject {
         return newViewModel
     }
     
-    func getAudioDuration(url: URL) -> Double {
-        var duration: Double = 0
-        do {
-            let audioAsset = try AVAudioPlayer(contentsOf: url)
-            duration = audioAsset.duration
-        } catch {
-            print("Could not load file for duration: \(error.localizedDescription)")
-        }
-        return duration
-    }
-    
-    func updateRecording(_ recording: Recording) {
-        if let index = recordings.firstIndex(where: { $0.id == recording.id }) {
-            recordings[index] = recording
-        }
-    }
-    
     func playRecording(recording: Recording) {
         let url = recording.url // Use the URL directly from the Recording object
         
@@ -105,21 +95,31 @@ class RecordingsListViewModel: ObservableObject {
     
     func deleteRecording(recording: Recording) {
         let url = recording.url // Use the URL directly from the Recording object
-        
+
+        // Stop playing the audio if it's currently playing
         if audioPlayer?.isPlaying == true {
             audioPlayer?.stop()
         }
-        
+
+        // Delete the file
         if FileManager.default.fileExists(atPath: url.path) {
             do {
                 try FileManager.default.removeItem(at: url)
+                
+                // Remove the recording from RecordingsListViewModel's list
                 if let index = recordings.firstIndex(where: { $0.id == recording.id }) {
                     recordings.remove(at: index)
                 }
+
+                // Remove the recording from AudioRecorder's list
+                if let index = audioRecorder.recordings.firstIndex(where: { $0.id == recording.id }) {
+                    audioRecorder.recordings.remove(at: index)
+                }
                 
-                // Remove the ViewModel associated with this recording
-                dadviceViewModels.removeValue(forKey: recording.id)
-                
+                // Update the list in both places
+                audioRecorder.updateRecordingsList()
+                loadRecordings()
+
             } catch {
                 print("Failed to delete recording: \(error.localizedDescription)")
             }
@@ -127,4 +127,5 @@ class RecordingsListViewModel: ObservableObject {
             print("File does not exist at path: \(url.path)")
         }
     }
+
 }

@@ -51,11 +51,10 @@ struct DadviceView: View {
                             Button("Save") {
                                 if let recording = viewModel.currentRecording {
                                     recording.name = tempName
-                                    viewModel.onRecordingUpdated?(recording)
+                                    viewModel.saveChanges(for: recording)  // Use the updated method
                                 }
                                 isEditing = false
-                            }
-                        }
+                            }                        }
                     }
                     .padding([.leading, .trailing])
                     .padding(.top, 10)

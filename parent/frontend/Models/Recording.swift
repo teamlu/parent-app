@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI // Make sure to import this
 
-enum RecordingStatus {
+enum RecordingStatus: String {
     case completed
     case processing
 }
